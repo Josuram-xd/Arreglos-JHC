@@ -5,12 +5,16 @@ class ArrayInterface:
     def __init__(self, root):
         self.root = root
         self.root.title("Gestor de Arrays - Taller 1")
-        self.root.geometry("1000x800")
+        self.root.geometry("1200x900")
         self.root.configure(bg="#f0f0f0")
         
         # Arrays
         self.array1 = []
         self.array2d = [[], [], []]
+        
+        # Variables para mostrar en las pestañas
+        self.array1_display = None
+        self.array2d_display = None
         
         # Crear notebook (pestañas)
         self.notebook = ttk.Notebook(root)
@@ -27,6 +31,40 @@ class ArrayInterface:
         
         # Pestaña 4: Búsqueda de índices
         self.create_tab4()
+    
+    def update_display_tab1(self, array1_display, array2d_display):
+        """Actualiza los displays de la pestaña 1"""
+        array1_display.config(state="normal")
+        array1_display.delete(1.0, tk.END)
+        array1_display.insert(tk.END, f"array1 = {self.array1}")
+        array1_display.config(state="disabled")
+        
+        array2d_display.config(state="normal")
+        array2d_display.delete(1.0, tk.END)
+        array2d_display.insert(tk.END, "array2d = [\n")
+        for i, row in enumerate(self.array2d):
+            array2d_display.insert(tk.END, f"  {row}")
+            if i < 2:
+                array2d_display.insert(tk.END, ",\n")
+        array2d_display.insert(tk.END, "\n]")
+        array2d_display.config(state="disabled")
+    
+    def update_display_tab3(self, array1_result, array2d_result):
+        """Actualiza los displays de la pestaña 3"""
+        array1_result.config(state="normal")
+        array1_result.delete(1.0, tk.END)
+        array1_result.insert(tk.END, f"array1 = {self.array1}")
+        array1_result.config(state="disabled")
+        
+        array2d_result.config(state="normal")
+        array2d_result.delete(1.0, tk.END)
+        array2d_result.insert(tk.END, "array2d = [\n")
+        for i, row in enumerate(self.array2d):
+            array2d_result.insert(tk.END, f"  {row}")
+            if i < 2:
+                array2d_result.insert(tk.END, ",\n")
+        array2d_result.insert(tk.END, "\n]")
+        array2d_result.config(state="disabled")
     
     def create_tab1(self):
         """Primera parte: Entrada de arrays"""
@@ -46,11 +84,16 @@ class ArrayInterface:
         array1_input.pack(side="left", padx=5, pady=5)
         array1_input.insert(0, "Ingresa elemento")
         
+        # Display de Array 1D
+        array1_display = scrolledtext.ScrolledText(array1_frame, height=3, width=80, 
+                                                   state="disabled", font=("Courier", 10))
+        array1_display.pack(fill="x", padx=5, pady=5)
+        
         def add_array1():
             value = array1_input.get().strip()
             if value and value != "Ingresa elemento" and len(self.array1) < 5:
                 self.array1.append(value)
-                update_display()
+                self.update_display_tab1(array1_display, array2d_display)
                 array1_input.delete(0, tk.END)
                 array1_input.insert(0, "Ingresa elemento")
                 messagebox.showinfo("Éxito", f"'{value}' añadido (Total: {len(self.array1)}/5)")
@@ -59,11 +102,6 @@ class ArrayInterface:
         
         tk.Button(array1_frame, text="Agregar", command=add_array1, 
                  bg="#4CAF50", fg="white").pack(side="left", padx=5, pady=5)
-        
-        # Display de Array 1D
-        array1_display = scrolledtext.ScrolledText(array1_frame, height=3, width=80, 
-                                                   state="disabled", font=("Courier", 10))
-        array1_display.pack(fill="x", padx=5, pady=5)
         
         # Sección Array 2D
         array2d_frame = ttk.LabelFrame(frame, text="Array 2D (3x3)")
@@ -86,7 +124,7 @@ class ArrayInterface:
                 value = array2d_input.get().strip()
                 if value and value != "Ingresa elemento" and len(self.array2d[row]) < 3:
                     self.array2d[row].append(value)
-                    update_display()
+                    self.update_display_tab1(array1_display, array2d_display)
                     array2d_input.delete(0, tk.END)
                     array2d_input.insert(0, "Ingresa elemento")
                     total = sum(len(r) for r in self.array2d)
@@ -105,32 +143,16 @@ class ArrayInterface:
         array2d_display.pack(fill="x", padx=5, pady=5)
         
         # Botón para limpiar
-        tk.Button(frame, text="Limpiar Arrays", command=lambda: clear_all(), 
-                 bg="#FF9800", fg="white", font=("Arial", 10, "bold")).pack(pady=10)
-        
         def clear_all():
             self.array1 = []
             self.array2d = [[], [], []]
-            update_display()
+            self.update_display_tab1(array1_display, array2d_display)
             messagebox.showinfo("Limpios", "Arrays limpiados")
         
-        def update_display():
-            array1_display.config(state="normal")
-            array1_display.delete(1.0, tk.END)
-            array1_display.insert(tk.END, f"array1 = {self.array1}")
-            array1_display.config(state="disabled")
-            
-            array2d_display.config(state="normal")
-            array2d_display.delete(1.0, tk.END)
-            array2d_display.insert(tk.END, "array2d = [\n")
-            for i, row in enumerate(self.array2d):
-                array2d_display.insert(tk.END, f"  {row}")
-                if i < 2:
-                    array2d_display.insert(tk.END, ",\n")
-            array2d_display.insert(tk.END, "\n]")
-            array2d_display.config(state="disabled")
+        tk.Button(frame, text="Limpiar Arrays", command=clear_all, 
+                 bg="#FF9800", fg="white", font=("Arial", 10, "bold")).pack(pady=10)
         
-        update_display()
+        self.update_display_tab1(array1_display, array2d_display)
     
     def create_tab2(self):
         """Segunda parte: Acceso a elementos específicos"""

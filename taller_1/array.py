@@ -11,10 +11,19 @@ paswords = [
 print(days[1]) 
 print(paswords[1][1])
 
+print(days)
+print(paswords)
+
 ## Third part 
 days.insert(2,"Estructura de datos")
 paswords[2].pop(2)
 
+print(days)
+print(paswords)
+
 ## Fourth point
 print(days.index("Estructura de datos"))
 print(paswords[1].index("456"))
+
+print(days)
+print(paswords)

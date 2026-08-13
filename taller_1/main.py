@@ -110,7 +110,8 @@ class ArrayInterface:
         # Selección de fila
         tk.Label(array2d_frame, text="Fila:").pack(side="left", padx=5, pady=5)
         row_spin = tk.Spinbox(array2d_frame, from_=0, to=2, width=3, font=("Arial", 10))
-        row_spin.set(0)
+        row_spin.delete(0, tk.END)
+        row_spin.insert(0, "0")
         row_spin.pack(side="left", padx=5, pady=5)
         
         tk.Label(array2d_frame, text="Elemento:").pack(side="left", padx=5, pady=5)
@@ -185,10 +186,6 @@ class ArrayInterface:
         tk.Label(array2d_frame, text="Código: print(array2d[1][1])", 
                 font=("Arial", 10, "italic")).pack(anchor="w", padx=20, pady=5)
         
-        # Botón para refrescar
-        tk.Button(frame, text="Actualizar Valores", command=update_values, 
-                 bg="#4CAF50", fg="white", font=("Arial", 10, "bold")).pack(pady=15)
-        
         def update_values():
             try:
                 valor1 = self.array1[1] if len(self.array1) > 1 else "Índice fuera de rango"
@@ -201,6 +198,10 @@ class ArrayInterface:
                 array2d_label.config(text=f"Resultado: '{valor2}'")
             except IndexError:
                 array2d_label.config(text="Error: Índice fuera de rango")
+        
+        # Botón para refrescar
+        tk.Button(frame, text="Actualizar Valores", command=update_values, 
+                 bg="#4CAF50", fg="white", font=("Arial", 10, "bold")).pack(pady=15)
         
         update_values()
     
@@ -221,16 +222,6 @@ class ArrayInterface:
         insert_input.pack(side="left", padx=5, pady=5)
         insert_input.insert(0, "Estructura de datos")
         
-        def do_insert():
-            value = insert_input.get().strip()
-            if value:
-                self.array1.insert(2, value)
-                update_displays()
-                messagebox.showinfo("Éxito", f"'{value}' insertado en posición 2")
-        
-        tk.Button(insert_frame, text="Insertar en pos 2", command=do_insert, 
-                 bg="#4CAF50", fg="white").pack(side="left", padx=5, pady=5)
-        
         array1_result = scrolledtext.ScrolledText(insert_frame, height=3, width=80, 
                                                  state="disabled", font=("Courier", 10))
         array1_result.pack(fill="x", padx=5, pady=5)
@@ -239,11 +230,25 @@ class ArrayInterface:
         pop_frame = ttk.LabelFrame(frame, text="Pop: array2d[2].pop(2)")
         pop_frame.pack(fill="x", padx=10, pady=10)
         
+        array2d_result = scrolledtext.ScrolledText(pop_frame, height=4, width=80, 
+                                                  state="disabled", font=("Courier", 10))
+        array2d_result.pack(fill="x", padx=5, pady=5)
+        
+        def do_insert():
+            value = insert_input.get().strip()
+            if value:
+                self.array1.insert(2, value)
+                self.update_display_tab3(array1_result, array2d_result)
+                messagebox.showinfo("Éxito", f"'{value}' insertado en posición 2")
+        
+        tk.Button(insert_frame, text="Insertar en pos 2", command=do_insert, 
+                 bg="#4CAF50", fg="white").pack(side="left", padx=5, pady=5)
+        
         def do_pop():
             try:
                 if len(self.array2d[2]) > 2:
                     removed = self.array2d[2].pop(2)
-                    update_displays()
+                    self.update_display_tab3(array1_result, array2d_result)
                     messagebox.showinfo("Éxito", f"'{removed}' eliminado de array2d[2][2]")
                 else:
                     messagebox.showwarning("Error", "No hay elemento en array2d[2][2]")
@@ -253,27 +258,7 @@ class ArrayInterface:
         tk.Button(pop_frame, text="Eliminar array2d[2][2]", command=do_pop, 
                  bg="#f44336", fg="white").pack(side="left", padx=5, pady=5)
         
-        array2d_result = scrolledtext.ScrolledText(pop_frame, height=4, width=80, 
-                                                  state="disabled", font=("Courier", 10))
-        array2d_result.pack(fill="x", padx=5, pady=5)
-        
-        def update_displays():
-            array1_result.config(state="normal")
-            array1_result.delete(1.0, tk.END)
-            array1_result.insert(tk.END, f"array1 = {self.array1}")
-            array1_result.config(state="disabled")
-            
-            array2d_result.config(state="normal")
-            array2d_result.delete(1.0, tk.END)
-            array2d_result.insert(tk.END, "array2d = [\n")
-            for i, row in enumerate(self.array2d):
-                array2d_result.insert(tk.END, f"  {row}")
-                if i < 2:
-                    array2d_result.insert(tk.END, ",\n")
-            array2d_result.insert(tk.END, "\n]")
-            array2d_result.config(state="disabled")
-        
-        update_displays()
+        self.update_display_tab3(array1_result, array2d_result)
     
     def create_tab4(self):
         """Cuarta parte: Búsqueda de índices"""
@@ -296,19 +281,21 @@ class ArrayInterface:
                                 fg="#1976D2", bg="#E3F2FD")
         array1_result.pack(fill="x", padx=5, pady=5)
         
+        array1_search_status = scrolledtext.ScrolledText(array1_frame, height=3, width=80, 
+                                                        state="disabled", font=("Courier", 10))
+        array1_search_status.pack(fill="x", padx=5, pady=5)
+        
         def search_array1():
             value = array1_search.get().strip()
             try:
                 index = self.array1.index(value)
                 array1_result.config(text=f"✓ Encontrado: array1.index('{value}') = {index}")
-                array1_search_status.pack(fill="x", padx=5, pady=5)
                 array1_search_status.config(state="normal")
                 array1_search_status.delete(1.0, tk.END)
                 array1_search_status.insert(tk.END, f"array1 = {self.array1}\nÍndice de '{value}': {index}")
                 array1_search_status.config(state="disabled")
             except ValueError:
                 array1_result.config(text=f"✗ No encontrado: '{value}' no está en array1")
-                array1_search_status.pack(fill="x", padx=5, pady=5)
                 array1_search_status.config(state="normal")
                 array1_search_status.delete(1.0, tk.END)
                 array1_search_status.insert(tk.END, f"array1 = {self.array1}\nError: '{value}' no existe")
@@ -316,9 +303,6 @@ class ArrayInterface:
         
         tk.Button(array1_frame, text="Buscar", command=search_array1, 
                  bg="#4CAF50", fg="white").pack(side="left", padx=5, pady=5)
-        
-        array1_search_status = scrolledtext.ScrolledText(array1_frame, height=3, width=80, 
-                                                        state="disabled", font=("Courier", 10))
         
         # Buscar en Array 2D (fila 1)
         array2d_frame = ttk.LabelFrame(frame, text="Buscar en array2d fila 1")
@@ -332,13 +316,16 @@ class ArrayInterface:
                                  fg="#C2185B", bg="#FCE4EC")
         array2d_result.pack(fill="x", padx=5, pady=5)
         
+        array2d_search_status = scrolledtext.ScrolledText(array2d_frame, height=3, width=80, 
+                                                         state="disabled", font=("Courier", 10))
+        array2d_search_status.pack(fill="x", padx=5, pady=5)
+        
         def search_array2d():
             value = array2d_search.get().strip()
             try:
                 if value in self.array2d[1]:
                     col_idx = self.array2d[1].index(value)
                     array2d_result.config(text=f"✓ Encontrado: array2d[1].index('{value}') = {col_idx}")
-                    array2d_search_status.pack(fill="x", padx=5, pady=5)
                     array2d_search_status.config(state="normal")
                     array2d_search_status.delete(1.0, tk.END)
                     array2d_search_status.insert(tk.END, f"array2d[1] = {self.array2d[1]}\nÍndice de '{value}': {col_idx}")
@@ -347,7 +334,6 @@ class ArrayInterface:
                     raise ValueError(f"'{value}' no encontrado")
             except ValueError:
                 array2d_result.config(text=f"✗ No encontrado: '{value}' no está en array2d fila 1")
-                array2d_search_status.pack(fill="x", padx=5, pady=5)
                 array2d_search_status.config(state="normal")
                 array2d_search_status.delete(1.0, tk.END)
                 array2d_search_status.insert(tk.END, f"array2d[1] = {self.array2d[1]}\nError: '{value}' no existe")
@@ -355,9 +341,7 @@ class ArrayInterface:
         
         tk.Button(array2d_frame, text="Buscar en fila 1", command=search_array2d, 
                  bg="#2196F3", fg="white").pack(side="left", padx=5, pady=5)
-        
-        array2d_search_status = scrolledtext.ScrolledText(array2d_frame, height=3, width=80, 
-                                                         state="disabled", font=("Courier", 10))
+
 
 if __name__ == "__main__":
     root = tk.Tk()

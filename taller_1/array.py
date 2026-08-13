@@ -13,7 +13,7 @@ print(paswords[1][1])
 
 ## Third part 
 days.insert(2,"Estructura de datos")
-paswords.pop(2)
+paswords[2].pop(2)
 
 ## Fourth point
 print(days.index("Estructura de datos"))
